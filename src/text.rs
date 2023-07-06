@@ -1,5 +1,4 @@
 use serde::Deserialize;
-use serde_json;
 use std::collections::HashMap;
 use std::path::PathBuf;
 
@@ -19,13 +18,13 @@ pub struct FontConfig {
 
 impl FontConfig {
     pub fn from_file(path: &PathBuf) -> Result<Self, String> {
-        let font_config_file = std::fs::read_to_string(&path);
+        let font_config_file = std::fs::read_to_string(path);
 
         if let Err(error) = font_config_file {
             return Err(format!(
                 "Error reading font_config file '{}': {}",
                 path.display(),
-                error.to_string(),
+                error,
             ));
         }
 
@@ -35,7 +34,7 @@ impl FontConfig {
             format!(
                 "Error parsing font_config file '{}': {}",
                 path.display(),
-                error.to_string(),
+                error,
             )
         })
     }
@@ -45,7 +44,7 @@ impl FontConfig {
 
         self.fonts
             .get(font_id)
-            .ok_or_else(|| format!("Font with id '{}' not found in font_config file", font_id,))
+            .ok_or_else(|| format!("Font with id '{font_id}' not found in font_config file"))
     }
 }
 
@@ -67,13 +66,14 @@ pub fn split_line(input: &str, font: &Font) -> Vec<String> {
             output.push(word.to_string());
             line_width = word_width;
             continue;
-        } else {
-            if !line.is_empty() {
-                line.push(' ');
-            }
-            line.push_str(word);
-            line_width += space_width + word_width;
         }
+
+        if !line.is_empty() {
+            line.push(' ');
+        }
+
+        line.push_str(word);
+        line_width += space_width + word_width;
     }
 
     output

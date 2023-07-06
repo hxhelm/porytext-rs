@@ -41,7 +41,7 @@ fn main() {
             println!(
                 "Error reading input file '{}': {}",
                 input_path.display(),
-                error.to_string()
+                error
             );
             return;
         }
@@ -49,12 +49,12 @@ fn main() {
 
     let font_config_path = args
         .font_config
-        .unwrap_or(PathBuf::from(DEFAULT_FONT_CONFIG));
+        .unwrap_or_else(|| PathBuf::from(DEFAULT_FONT_CONFIG));
 
     let font_config = match FontConfig::from_file(&font_config_path) {
         Ok(font_config) => font_config,
         Err(error) => {
-            println!("{}", error);
+            println!("{error}");
             return;
         }
     };
@@ -62,12 +62,12 @@ fn main() {
     let font = match font_config.get_font(args.font_id.as_deref()) {
         Ok(font_config) => font_config,
         Err(error) => {
-            println!("{}", error);
+            println!("{error}");
             return;
         }
     };
 
-    let block_name = args.block_name.unwrap_or(String::from("<NAME>"));
+    let block_name = args.block_name.unwrap_or_else(|| String::from("<NAME>"));
 
     let lines = input
         .lines()

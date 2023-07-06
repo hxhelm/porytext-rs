@@ -11,10 +11,10 @@ pub enum GTextLineBreak {
 impl Display for GTextLineBreak {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            GTextLineBreak::NewLine => write!(f, r"\n"),
-            GTextLineBreak::NewLineWithScroll => write!(f, r"\l"),
-            GTextLineBreak::NewParagraph => write!(f, r"\p"),
-            GTextLineBreak::End => write!(f, "$"),
+            Self::NewLine => write!(f, r"\n"),
+            Self::NewLineWithScroll => write!(f, r"\l"),
+            Self::NewParagraph => write!(f, r"\p"),
+            Self::End => write!(f, "$"),
         }
     }
 }
