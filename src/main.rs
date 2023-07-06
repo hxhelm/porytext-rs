@@ -1,12 +1,13 @@
 use clap::Parser;
-use gtext::{GTextBlock, GTextEntry, GTextLineBreak};
-use itertools::Itertools;
+use gtext::GTextBlock;
 use std::fs;
 use std::path::PathBuf;
+use text::FontConfig;
 
 mod gtext;
+mod text;
 
-const MAX_LINE_LENGTH: usize = 38;
+const DEFAULT_FONT_CONFIG: &str = "font_config.json";
 
 /// A simple CLI tool to convert plain text to gText entries
 #[derive(Parser)]
@@ -16,29 +17,17 @@ struct Args {
     #[arg(value_name = "FILE")]
     input: PathBuf,
 
+    /// Set the id for the font to use, default is defined in the font config file
+    #[arg(short = 'f', long)]
+    font_id: Option<String>,
+
+    /// Set the path to the font config file, default is ./font_config.json
+    #[arg(short = 'c', long, value_name = "FILE")]
+    font_config: Option<PathBuf>,
+
     /// The name of the generated gText block
     #[arg(short, long)]
     block_name: Option<String>,
-}
-
-fn split_line(input: &str) -> Vec<String> {
-    let mut output = vec![String::new()];
-
-    for word in input.split_whitespace() {
-        let line = output.last_mut().unwrap();
-
-        if line.len() + word.len() + 1 > MAX_LINE_LENGTH {
-            output.push(word.to_string());
-            continue;
-        } else {
-            if !line.is_empty() {
-                line.push(' ');
-            }
-            line.push_str(word);
-        }
-    }
-
-    output
 }
 
 fn main() {
@@ -58,12 +47,32 @@ fn main() {
         }
     };
 
+    let font_config_path = args
+        .font_config
+        .unwrap_or(PathBuf::from(DEFAULT_FONT_CONFIG));
+
+    let font_config = match FontConfig::from_file(&font_config_path) {
+        Ok(font_config) => font_config,
+        Err(error) => {
+            println!("{}", error);
+            return;
+        }
+    };
+
+    let font = match font_config.get_font(args.font_id.as_deref()) {
+        Ok(font_config) => font_config,
+        Err(error) => {
+            println!("{}", error);
+            return;
+        }
+    };
+
     let block_name = args.block_name.unwrap_or(String::from("<NAME>"));
 
     let lines = input
         .lines()
         .map(String::from)
-        .flat_map(|line| split_line(&line))
+        .flat_map(|line| text::split_line(&line, font))
         .collect::<Vec<String>>();
 
     let g_text = GTextBlock::from_plain_text(&lines, &block_name);
