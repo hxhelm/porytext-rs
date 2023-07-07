@@ -1,4 +1,4 @@
-use std::fmt::Display;
+use std::fmt::{Display, Formatter};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum GTextLineBreak {
@@ -9,7 +9,7 @@ pub enum GTextLineBreak {
 }
 
 impl Display for GTextLineBreak {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         match self {
             Self::NewLine => write!(f, r"\n"),
             Self::NewLineWithScroll => write!(f, r"\l"),
@@ -25,9 +25,9 @@ pub struct GTextEntry {
     pub line_break: GTextLineBreak,
 }
 
-impl ToString for GTextEntry {
-    fn to_string(&self) -> String {
-        format!("\t.string \"{}{}\"", self.text, self.line_break)
+impl Display for GTextEntry {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        write!(f, "\t.string \"{}{}\"", self.text, self.line_break)
     }
 }
 
@@ -39,12 +39,10 @@ pub struct GTextBlock {
 
 impl ToString for GTextBlock {
     fn to_string(&self) -> String {
-        let mut output = String::new();
+        let mut output = format!("gText_{}::\n", self.name);
 
-        output.push_str(&format!("gText_{}::\n", self.name));
         for entry in &self.entries {
-            output.push_str(&entry.to_string());
-            output.push('\n');
+            output.push_str(&format!("{entry}\n"));
         }
 
         output
@@ -53,17 +51,7 @@ impl ToString for GTextBlock {
 
 impl GTextBlock {
     pub fn from_plain_text(lines: &[String], name: &str) -> Self {
-        // Remove empty lines at the beginning and end of the text
-        let start_index = lines
-            .iter()
-            .position(|line| !line.trim().is_empty())
-            .unwrap_or(lines.len());
-        let end_index = lines
-            .iter()
-            .rposition(|line| !line.trim().is_empty())
-            .unwrap_or(0);
-        let lines = &lines[start_index..=end_index];
-
+        let lines = trim_empty_lines(lines);
         let mut entries = Vec::new();
 
         for (i, line) in lines.iter().enumerate() {
@@ -105,6 +93,18 @@ impl GTextBlock {
             entries,
         }
     }
+}
+
+fn trim_empty_lines(lines: &[String]) -> &[String] {
+    let start_index = lines
+        .iter()
+        .position(|line| !line.trim().is_empty())
+        .unwrap_or(lines.len());
+    let end_index = lines
+        .iter()
+        .rposition(|line| !line.trim().is_empty())
+        .unwrap_or(0);
+    &lines[start_index..=end_index]
 }
 
 #[cfg(test)]
