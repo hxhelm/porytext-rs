@@ -22,3 +22,29 @@ Options:
   -h, --help                     Print help
   -V, --version                  Print version
 ```
+
+Example:
+
+`input.txt`:
+```
+The quick, brown fox jumps over a lazy dog.
+
+DJs flock by when MTV ax quiz prog.
+
+One morning, when Gregor Samsa woke from troubled dreams, he found himself transformed in his bed into a horrible vermin.
+
+Waltz, bad nymph, for quick jigs vex!
+```
+
+```
+> ./porytext -b Porytext_Test input.txt
+gText_PoryText_Test::
+        .string "The quick, brown fox jumps over a lazy\n"
+        .string "dog.\p"
+        .string "DJs flock by when MTV ax quiz prog.\p"
+        .string "One morning, when Gregor Samsa woke\n"
+        .string "from troubled dreams, he found himself\l"
+        .string "transformed in his bed into a horrible\l"
+        .string "vermin.\p"
+        .string "Waltz, bad nymph, for quick jigs vex!$"
+```
