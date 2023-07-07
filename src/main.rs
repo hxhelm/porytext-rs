@@ -38,12 +38,11 @@ fn main() {
     let input = match fs::read_to_string(&input_path) {
         Ok(input) => input,
         Err(error) => {
-            println!(
+            return println!(
                 "Error reading input file '{}': {}",
                 input_path.display(),
                 error
-            );
-            return;
+            )
         }
     };
 
@@ -54,8 +53,11 @@ fn main() {
     let font_config = match FontConfig::from_file(&font_config_path) {
         Ok(font_config) => font_config,
         Err(error) => {
-            println!("{error}");
-            return;
+            return println!(
+                "Error parsing font_config file '{}': {}",
+                font_config_path.display(),
+                error
+            )
         }
     };
 

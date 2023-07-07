@@ -1,5 +1,6 @@
 use serde::Deserialize;
 use std::collections::HashMap;
+use std::error::Error;
 use std::path::PathBuf;
 
 #[derive(Deserialize, Debug)]
@@ -17,34 +18,17 @@ pub struct FontConfig {
 }
 
 impl FontConfig {
-    pub fn from_file(path: &PathBuf) -> Result<Self, String> {
-        let font_config_file = std::fs::read_to_string(path);
-
-        if let Err(error) = font_config_file {
-            return Err(format!(
-                "Error reading font_config file '{}': {}",
-                path.display(),
-                error,
-            ));
-        }
-
-        let font_config = font_config_file.unwrap();
-
-        serde_json::from_str(&font_config).map_err(|error| {
-            format!(
-                "Error parsing font_config file '{}': {}",
-                path.display(),
-                error,
-            )
-        })
+    pub fn from_file(path: &PathBuf) -> Result<Self, Box<dyn Error>> {
+        let font_config = std::fs::read_to_string(path)?;
+        serde_json::from_str(&font_config).map_err(std::convert::Into::into)
     }
 
-    pub fn get_font(&self, font_id: Option<&str>) -> Result<&Font, String> {
+    pub fn get_font(&self, font_id: Option<&str>) -> Result<&Font, Box<dyn Error>> {
         let font_id = font_id.unwrap_or(self.default_font_id.as_str());
 
         self.fonts
             .get(font_id)
-            .ok_or_else(|| format!("Font with id '{font_id}' not found in font_config file"))
+            .ok_or_else(|| format!("Font with id '{font_id}' not found in font config file").into())
     }
 }
 

@@ -1,4 +1,4 @@
-use std::fmt::{Display, Formatter};
+use std::fmt::{Display, Formatter, Result};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum GTextLineBreak {
@@ -9,7 +9,7 @@ pub enum GTextLineBreak {
 }
 
 impl Display for GTextLineBreak {
-    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+    fn fmt(&self, f: &mut Formatter<'_>) -> Result {
         match self {
             Self::NewLine => write!(f, r"\n"),
             Self::NewLineWithScroll => write!(f, r"\l"),
@@ -26,7 +26,7 @@ pub struct GTextEntry {
 }
 
 impl Display for GTextEntry {
-    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+    fn fmt(&self, f: &mut Formatter<'_>) -> Result {
         write!(f, "\t.string \"{}{}\"", self.text, self.line_break)
     }
 }
